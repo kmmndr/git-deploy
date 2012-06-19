@@ -18,16 +18,17 @@ fi
 
 # get the current branch
 head="$(git symbolic-ref HEAD)"
-# abort if we're on a detached head
-[ "$?" != "0" ] && exit 1
 
 # read the STDIN to detect if this push changed the current branch
 while read oldrev newrev refname
 do
   [ "$refname" = "$head" ] && break
 done
+
 # abort if there's no update, or in case the branch is deleted
-[ -z "${newrev//0}" ] && exit
+if [ -z "${newrev//0}" ]; then
+  exit
+fi
 
 # check out the latest code into the working copy
 umask 002
