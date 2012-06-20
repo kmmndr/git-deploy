@@ -52,12 +52,14 @@ class GitDeploy < Thor
     remote_bin_dir = "#{deploy_to}/.git/bin"
 
     scp_upload "#{hooks_dir}/post-receive.sh" => "#{remote_dir}/post-receive"
-    scp_upload "#{hooks_dir}/pre-receive.sh" => "#{remote_dir}/pre-receive"
+    #scp_upload "#{hooks_dir}/pre-receive.sh" => "#{remote_dir}/pre-receive"
     run "chmod +x #{remote_dir}/post-receive #{remote_dir}/pre-receive"
     run "mkdir -p #{remote_bin_dir}"
-    scp_upload "#{local_bin_dir}/detect.sh" => "#{remote_bin_dir}/detect"
-    scp_upload "#{local_bin_dir}/compile.sh" => "#{remote_bin_dir}/compile"
-    run "chmod +x #{remote_bin_dir}/detect #{remote_bin_dir}/compile"
+    scp_upload "#{local_bin_dir}/detect.sh" => "#{remote_bin_dir}/detect.sh"
+    scp_upload "#{local_bin_dir}/compile-ruby.sh" => "#{remote_bin_dir}/compile-ruby.sh"
+    scp_upload "#{local_bin_dir}/functions.sh" => "#{remote_bin_dir}/functions.sh"
+    run "chmod +x #{remote_bin_dir}/detect.sh"
+    run "chmod +x #{remote_bin_dir}/compile-ruby.sh"
   end
   
   desc "restart", "Restarts the application on the server"

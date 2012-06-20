@@ -3,9 +3,10 @@
 # Purpose: check if the application is deployable
 # Usage:  detect temporary_dir/ 
 
-if [ -f $1/config.ru ]; then
-  echo "-----> Rack/Rails"
-  exit 0
-else
-  exit 1
+SRC_DIR=$1
+
+# handle ruby project having a gemfile
+if check_files $SRC_DIR Gemfile; then
+  log "Ruby language detected"
+  . $BIN_DIR/compile-ruby.sh
 fi

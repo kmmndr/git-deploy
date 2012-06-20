@@ -8,16 +8,46 @@ if [ "$GIT_DIR" = "." ]; then
   export GIT_DIR HOOKS_DIR
 fi
 
-[ -e ${HOOKS_DIR}/pre-receive ] && mv -f ${HOOKS_DIR}/pre-receive ${HOOKS_DIR}/pre-receive.sample
+###
+#[ -e ${HOOKS_DIR}/pre-receive ] && mv -f ${HOOKS_DIR}/pre-receive ${HOOKS_DIR}/pre-receive.sample
+
+if ! [ -t 0 ]; then
+  read -a ref
+fi
+IFS='/' read -ra REF <<< "${ref[2]}"
+CURRENT_GIT_BRANCH="${REF[2]}"
+## get the current branch
+#head="$(git symbolic-ref HEAD)"
+
+FULL_DIRNAME=$(/bin/pwd)
+PROJECT_NAME=$(basename $FULL_DIRNAME)
+PROJECT_NAME=${PROJECT_NAME%.*}
+BIN_DIR="${FULL_DIRNAME}/.git/bin"
+
+# loading functions
+. $BIN_DIR/functions.sh
+
+log "$PROJECT_NAME project"
+log "deploying into $FULL_DIRNAME by user $USER"
+
+PID=$$
+log "Renice process ($PID)"
+run_quietly "renice 19 -p $PID"
+
+log "receiving push"
+#run_quietly "mkdir -p ${CURRENT_RELEASE_APP_PATH}"
+run_quietly "GIT_WORK_TREE=$FULL_DIRNAME git checkout -f"
+
+. $BIN_DIR/detect.sh $FULL_DIRNAME
+#. $BIN_DIR/compile $FULL_DIRNAME
+
+###
 
 # try to obtain the usual system PATH
 if [ -f /etc/profile ]; then
   PATH=$(source /etc/profile; echo $PATH)
   export PATH
 fi
-
-# get the current branch
-head="$(git symbolic-ref HEAD)"
 
 # read the STDIN to detect if this push changed the current branch
 while read oldrev newrev refname
@@ -51,5 +81,6 @@ else
   echo "-----> ===[ $(date) ]===" >> $logfile
 
   # execute the deploy hook in background
-  [ -x deploy/after_push ] && nohup deploy/after_push $oldrev $newrev 1>>$logfile 2>>$logfile &
+  #[ -x deploy/after_push ] && nohup deploy/after_push $oldrev $newrev 1>>$logfile 2>>$logfile &
+  [ -x deploy/after_push ] && deploy/after_push $oldrev $newrev 2>&1 
 fi
