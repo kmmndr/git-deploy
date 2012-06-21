@@ -83,7 +83,8 @@ class GitDeploy
       channels = []
       files.each do |local, remote|
         puts "FILE: [local] #{local.sub(LOCAL_DIR + '/', '')}  ->  [#{options[:remote]}] #{remote}"
-        channels << ssh_connection.scp.upload(local, remote) unless options.noop?
+        #channels << ssh_connection.scp.upload(local, remote) unless options.noop?
+        channels << ssh_connection.scp.upload(local, remote, :recursive => true) unless options.noop?
       end
       channels.each { |c| c.wait }
     end

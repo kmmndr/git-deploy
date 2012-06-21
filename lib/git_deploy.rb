@@ -55,11 +55,20 @@ class GitDeploy < Thor
     #scp_upload "#{hooks_dir}/pre-receive.sh" => "#{remote_dir}/pre-receive"
     run "chmod +x #{remote_dir}/post-receive #{remote_dir}/pre-receive"
     run "mkdir -p #{remote_bin_dir}"
-    scp_upload "#{local_bin_dir}/detect.sh" => "#{remote_bin_dir}/detect.sh"
-    scp_upload "#{local_bin_dir}/compile-ruby.sh" => "#{remote_bin_dir}/compile-ruby.sh"
-    scp_upload "#{local_bin_dir}/functions.sh" => "#{remote_bin_dir}/functions.sh"
-    run "chmod +x #{remote_bin_dir}/detect.sh"
-    run "chmod +x #{remote_bin_dir}/compile-ruby.sh"
+    #scp_upload "#{local_bin_dir}/functions.sh" => "#{remote_bin_dir}/functions.sh"
+    #scp_upload "#{local_bin_dir}/detect.sh" => "#{remote_bin_dir}/detect.sh"
+    #scp_upload "#{local_bin_dir}/init-ruby.sh" => "#{remote_bin_dir}/init-ruby.sh"
+
+    #Dir.glob("lib/*.{rb,sh}").collect { |file| puts file.to_s }
+    #Dir.glob("*.{rb,sh}").each do |file|
+    Dir.new(local_bin_dir).each do |file|
+      unless file == '.' || file == '..'
+        scp_upload "#{local_bin_dir}/#{file}" => "#{remote_bin_dir}/#{file}"
+        run "chmod +x #{remote_bin_dir}/#{file}" unless File.directory?("#{local_bin_dir}/#{file}")
+      end
+    end
+    #run "chmod +x #{remote_bin_dir}/detect.sh"
+    #run "chmod +x #{remote_bin_dir}/compile-ruby.sh"
   end
   
   desc "restart", "Restarts the application on the server"
