@@ -5,6 +5,7 @@
 
 # check for rbenv
 if ! check_command rbenv; then
+  # if rbenv isn't a system command (it has been added into debian wheezy)
   if [[ ! $RBENV_PATH ]]; then
     RBENV_PATH="$HOME/.rbenv"
   fi
@@ -18,5 +19,10 @@ if ! check_command rbenv; then
   fi
 fi
 
+# need better place
+export DATABASE_URL="postgres://$APP_NAME:$APP_NAME@localhost/$APP_NAME"
+
 log "ruby version : `ruby -v`"
 ruby ${BIN_DIR}/compile-ruby.rb
+
+

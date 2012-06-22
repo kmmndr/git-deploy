@@ -7,6 +7,6 @@ SRC_DIR=$1
 
 # handle ruby project having a gemfile
 if check_files $SRC_DIR Gemfile; then
-  log "Ruby language detected"
+  log "Ruby/* project detected"
   . $BIN_DIR/init-ruby.sh
 fi

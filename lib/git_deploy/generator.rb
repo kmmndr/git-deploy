@@ -16,7 +16,7 @@ class GitDeploy::Generator < Thor::Group
   end
 
   def copy_restart_callbacks
-    copy_hook 'before_restart.rb', 'deploy/before_restart'
+    copy_hook 'before_restart.sh', 'deploy/before_restart'
   end
 
   def copy_restart_after

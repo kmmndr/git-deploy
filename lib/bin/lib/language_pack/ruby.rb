@@ -46,7 +46,7 @@ class LanguagePack::Ruby < LanguagePack::Base
   def compile
     Dir.chdir(build_path)
     remove_vendor_bundle
-    install_ruby
+    ##--??--##install_ruby
     setup_language_pack_environment
     allow_git do
       install_language_pack_gems
@@ -62,7 +62,8 @@ private
   # the base PATH environment variable to be used
   # @return [String] the resulting PATH
   def default_path
-    "bin:#{slug_vendor_base}/bin:/usr/local/bin:/usr/bin:/bin"
+    #"bin:#{slug_vendor_base}/bin:/usr/local/bin:/usr/bin:/bin"
+    ENV['PATH']
   end
 
   # the relative path to the bundler directory of gems
@@ -90,6 +91,9 @@ private
 
     @ruby_version_run = true
 
+    @ruby_version = run_stdout("bundle platform --ruby").chomp.sub('(', '').sub(')', '').split.join('-')
+    
+=begin
     bootstrap_bundler do |bundler_path|
       old_system_path = "/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
       @ruby_version = run_stdout("env PATH=#{old_system_path}:#{bundler_path}/bin GEM_PATH=#{bundler_path} bundle platform --ruby").chomp
@@ -106,6 +110,7 @@ private
       @ruby_version = @ruby_version.sub('(', '').sub(')', '').split.join('-')
       @ruby_version_env_var = false
     end
+=end
 
     @ruby_version
   end
@@ -162,7 +167,7 @@ private
     config_vars = default_config_vars.each do |key, value|
       ENV[key] ||= value
     end
-    ENV["GEM_HOME"] = slug_vendor_base
+    #ENV["GEM_HOME"] = slug_vendor_base
     ENV["PATH"]     = "#{ruby_install_binstub_path}:#{config_vars["PATH"]}"
   end
 
@@ -240,7 +245,8 @@ ERROR
   # list of default gems to vendor into the slug
   # @return [Array] resluting list of gems
   def gems
-    [BUNDLER_GEM_PATH]
+    #[BUNDLER_GEM_PATH]
+    []
   end
 
   # installs vendored gems into the slug
@@ -258,6 +264,7 @@ ERROR
   # @return [Array] resulting list
   def binaries
     add_node_js_binary
+    []
   end
 
   # vendors binaries into the slug
@@ -376,14 +383,15 @@ ERROR
   # RUBYOPT line that requires syck_hack file
   # @return [String] require string if needed or else an empty string
   def syck_hack
-    syck_hack_file = File.expand_path(File.join(File.dirname(__FILE__), "../../vendor/syck_hack"))
-    ruby_version   = run('ruby -e "puts RUBY_VERSION"').chomp
-    # < 1.9.3 includes syck, so we need to use the syck hack
-    if Gem::Version.new(ruby_version) < Gem::Version.new("1.9.3")
-      "-r #{syck_hack_file}"
-    else
-      ""
-    end
+    ##--??--##syck_hack_file = File.expand_path(File.join(File.dirname(__FILE__), "../../vendor/syck_hack"))
+    ##--??--##ruby_version   = run('ruby -e "puts RUBY_VERSION"').chomp
+    ##--??--### < 1.9.3 includes syck, so we need to use the syck hack
+    ##--??--##if Gem::Version.new(ruby_version) < Gem::Version.new("1.9.3")
+    ##--??--##  "-r #{syck_hack_file}"
+    ##--??--##else
+    ##--??--##  ""
+    ##--??--##end
+    ""
   end
 
   # writes ERB based database.yml for Rails. The database.yml uses the DATABASE_URL from the environment during runtime.
@@ -478,7 +486,7 @@ params = CGI.parse(uri.query || "")
   # setup the lockfile parser
   # @return [Bundler::LockfileParser] a Bundler::LockfileParser
   def lockfile_parser
-    add_bundler_to_load_path
+    #add_bundler_to_load_path
     require "bundler"
     @lockfile_parser ||= Bundler::LockfileParser.new(File.read("Gemfile.lock"))
   end

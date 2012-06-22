@@ -35,12 +35,14 @@ PID=$$
 log "Renice process ($PID)"
 run_quietly "renice 19 -p $PID"
 
-log "receiving push"
+log "checking out latest push"
 #run_quietly "mkdir -p ${CURRENT_RELEASE_APP_PATH}"
 run_quietly "GIT_WORK_TREE=$FULL_DIRNAME git checkout -f"
 
 . $BIN_DIR/detect.sh $FULL_DIRNAME
 #. $BIN_DIR/compile $FULL_DIRNAME
+
+log "DONE PREPARING :-)"
 
 ###
 
@@ -50,25 +52,25 @@ if [ -f /etc/profile ]; then
   export PATH
 fi
 
-# read the STDIN to detect if this push changed the current branch
-while read oldrev newrev refname
-do
-  [ "$refname" = "$head" ] && break
-done
-
-# abort if there's no update, or in case the branch is deleted
-if [ -z "${newrev//0}" ]; then
-  exit
-fi
+## read the STDIN to detect if this push changed the current branch
+#while read oldrev newrev refname
+#do
+#  [ "$refname" = "$head" ] && break
+#done
+#
+## abort if there's no update, or in case the branch is deleted
+#if [ -z "${newrev//0}" ]; then
+#  exit
+#fi
 
 # check out the latest code into the working copy
 umask 002
-git reset --hard
+#git reset --hard
 
 logfile=log/deploy.log
 restart=tmp/restart.txt
 
-if [ -z "${oldrev//0}" ]; then
+#if [ -z "${oldrev//0}" ]; then
   # this is the first push; this branch was just created
   mkdir -p log tmp
   chmod 0775 log tmp
@@ -77,11 +79,11 @@ if [ -z "${oldrev//0}" ]; then
 
   # init submodules
   git submodule update --init | tee -a $logfile
-else
+#else
   # log timestamp
   echo "-----> ===[ $(date) ]===" >> $logfile
 
   # execute the deploy hook in background
   #[ -x deploy/after_push ] && nohup deploy/after_push $oldrev $newrev 1>>$logfile 2>>$logfile &
-  [ -x deploy/after_push ] && deploy/after_push $oldrev $newrev 2>&1 
-fi
+  [ -x deploy/after_push ] && . deploy/after_push $oldrev $newrev 2>&1 
+#fi
