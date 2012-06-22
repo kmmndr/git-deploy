@@ -47,10 +47,10 @@ log "DONE PREPARING :-)"
 ###
 
 # try to obtain the usual system PATH
-if [ -f /etc/profile ]; then
-  PATH=$(source /etc/profile; echo $PATH)
-  export PATH
-fi
+#if [ -f /etc/profile ]; then
+#  PATH=$(source /etc/profile; echo $PATH)
+#  export PATH
+#fi
 
 ## read the STDIN to detect if this push changed the current branch
 #while read oldrev newrev refname
