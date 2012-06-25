@@ -28,6 +28,12 @@ export CURRENT_GIT_BRANCH FULL_DIRNAME PROJECT_NAME BIN_DIR
 # loading functions
 . $BIN_DIR/functions.sh
 
+# abort if the push hasn't been done in master branch
+if [ "$CURRENT_GIT_BRANCH" != "master" ]; then
+  log "pushed into $CURRENT_GIT_BRANCH. Done."
+  exit
+fi
+
 log "$PROJECT_NAME project"
 log "deploying into $FULL_DIRNAME by user $USER"
 

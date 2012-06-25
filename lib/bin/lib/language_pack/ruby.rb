@@ -400,7 +400,8 @@ ERROR
       return unless File.directory?("config")
       topic("Writing config/database.yml to read from DATABASE_URL")
       File.open("config/database.yml", "w") do |file|
-        file.puts <<-DATABASE_YML
+        #file.puts <<-DATABASE_YML
+        content = ERB.new <<-DATABASE_YML
 <%
 
 require 'cgi'
@@ -455,6 +456,8 @@ params = CGI.parse(uri.query || "")
   <%= key %>: <%= value.first %>
 <% end %>
         DATABASE_YML
+        file.puts content.result
+        #puts content.result
       end
     end
   end

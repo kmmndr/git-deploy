@@ -1,6 +1,7 @@
 require "language_pack"
 require "pathname"
 require "yaml"
+require "erb"
 require "digest/sha1"
 
 Encoding.default_external = Encoding::UTF_8 if defined?(Encoding)

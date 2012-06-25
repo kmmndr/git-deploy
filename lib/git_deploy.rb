@@ -106,6 +106,26 @@ class GitDeploy < Thor
       all
     }
   end
+
+  desc "rake", "Run rake command on server"
+  method_option :task, :aliases => '-t', :required => true
+  method_option :env, :aliases => '-e', :default => 'production'
+  def rake(n = nil)
+    task = options[:task]
+    rails_env = options[:env]
+    #load_rbenv(rails_env)
+    run [] do |cmd|
+      cmd << "cd #{deploy_to}"
+      cmd << "RAILS_ENV=#{rails_env} rake #{task}"
+    end
+  end
+
+  no_tasks do
+    def load_rbenv(rails_env)
+      run "export RAILS_ENV=#{rails_env}; env"
+      run "env"
+    end
+  end
 end
 
 __END__

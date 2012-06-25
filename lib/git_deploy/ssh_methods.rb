@@ -17,7 +17,8 @@ class GitDeploy
       puts "[#{options[:remote]}] $ " + cmd.gsub(' && ', " && \\\n  ")
 
       unless options.noop?
-        status, output = ssh_exec cmd do |ch, stream, data|
+        #status, output = ssh_exec cmd do |ch, stream, data|
+        status, output = ssh_shell_exec cmd do |ch, stream, data|
           case stream
           when :stdout then $stdout.print data
           when :stderr then $stderr.print data
@@ -33,14 +34,37 @@ class GitDeploy
       status == 0
     end
 
-    def ssh_exec(cmd, &block)
+    def ssh_shell_exec(cmd, shell='bash', &block)
+      ssh_exec(cmd, "bash -i -l", &block)
+    end
+
+    def ssh_exec(cmd, shell=nil, &block)
       status = nil
       output = ''
 
+      real_cmd = (shell.nil? ? cmd : shell)
+
       channel = ssh_connection.open_channel do |chan|
-        chan.exec(cmd) do |ch, success|
-          raise "command failed: #{cmd.inspect}" unless success
-          # ch.request_pty
+        chan.exec(real_cmd) do |ch, success|
+          raise "command failed: #{real_cmd.inspect}" unless success
+          ch.request_pty
+          unless shell.nil?
+puts "exporting TERM"
+            ch.send_data "export TERM=vt100\n"
+
+            # Output each command as if they were entered on the command line
+            #[cmd].flatten.each do |command|
+            #  ch.send_data "#{command}\n"
+            #end
+            # Output command as if it was entered on the command line
+puts "executing CMD"
+            ch.send_data "#{cmd}\n"
+
+            # Remember to exit or we'll hang!
+puts "exiting"
+            ch.send_data "exit\n"
+          end 
+          
 
           ch.on_data do |c, data|
             output << data

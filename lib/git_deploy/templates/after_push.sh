@@ -17,10 +17,11 @@ umask 002
 
 git submodule init && git submodule sync && git submodule update
 
-# create a ruby template
-# check foreman
-#if [ -f $PWD/Procfile ]; then
-#  bundle exec foreman export bluepill . --log "`pwd`/log/"
+# uncomment for ruby/rails deployment
+#if [ -f $FULL_DIRNAME/Procfile ]; then
+#  export RAILS_ENV=production
+#  bundle exec foreman export bluepill $FULL_DIRNAME --user $USER --log "$FULL_DIRNAME/log/" -a $PROJECT_NAME -p 12000
+#  bluepill load $FULL_DIRNAME/$PROJECT_NAME.pill --no-privileged
 #fi
 
 run deploy/before_restart | indent
