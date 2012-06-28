@@ -45,8 +45,17 @@ log "checking out latest push"
 #run_quietly "mkdir -p ${CURRENT_RELEASE_APP_PATH}"
 run_quietly "GIT_WORK_TREE=$FULL_DIRNAME git checkout -f"
 
-. $BIN_DIR/detect.sh $FULL_DIRNAME
+#. $BIN_DIR/detect.sh $FULL_DIRNAME
 #. $BIN_DIR/compile $FULL_DIRNAME
+#. $BIN_DIR/detect.sh $FULL_DIRNAME
+if [ -f $FULL_DIRNAME/.env ]; then
+  echo "loading env file"
+  while read line  
+  do
+    eval "export $line"
+  done < $FULL_DIRNAME/.env
+fi
+. $BIN_DIR/detect.sh $FULL_DIRNAME
 
 log "DONE PREPARING :-)"
 

@@ -1,6 +1,8 @@
 class GitDeploy
   module SSHMethods
     private
+    SHELLS = [{ name: 'bash', command: 'bash -i -l' }]
+
 
     def sudo_cmd
       "sudo -p 'sudo password: '"
@@ -11,14 +13,18 @@ class GitDeploy
       super unless options.noop?
     end
 
-    def run(cmd = nil)
+    def run_with_env(cmd = nil, shell = SHELLS[0][:name], &block)
+      run cmd, shell, &block
+    end
+
+    def run(cmd = nil, shell = nil)
       cmd = yield(cmd) if block_given?
       cmd = cmd.join(' && ') if Array === cmd
       puts "[#{options[:remote]}] $ " + cmd.gsub(' && ', " && \\\n  ")
 
       unless options.noop?
         #status, output = ssh_exec cmd do |ch, stream, data|
-        status, output = ssh_shell_exec cmd do |ch, stream, data|
+        status, output = ssh_exec cmd, shell do |ch, stream, data|
           case stream
           when :stdout then $stdout.print data
           when :stderr then $stderr.print data
@@ -34,34 +40,30 @@ class GitDeploy
       status == 0
     end
 
-    def ssh_shell_exec(cmd, shell='bash', &block)
-      ssh_exec(cmd, "bash -i -l", &block)
-    end
-
     def ssh_exec(cmd, shell=nil, &block)
       status = nil
       output = ''
 
-      real_cmd = (shell.nil? ? cmd : shell)
+      shell_idx = SHELLS.index { |sh| sh[:name] == shell }
+      real_cmd = shell.nil? || shell_idx.nil? ? cmd : SHELLS[shell_idx][:command]
+
+      #real_cmd = (shell.nil? ? cmd : shell)
 
       channel = ssh_connection.open_channel do |chan|
         chan.exec(real_cmd) do |ch, success|
           raise "command failed: #{real_cmd.inspect}" unless success
-          ch.request_pty
-          unless shell.nil?
-puts "exporting TERM"
-            ch.send_data "export TERM=vt100\n"
+          #ch.request_pty
+          unless shell_idx.nil?
+            #ch.send_data "export TERM=vt100\n"
 
             # Output each command as if they were entered on the command line
             #[cmd].flatten.each do |command|
             #  ch.send_data "#{command}\n"
             #end
             # Output command as if it was entered on the command line
-puts "executing CMD"
             ch.send_data "#{cmd}\n"
 
             # Remember to exit or we'll hang!
-puts "exiting"
             ch.send_data "exit\n"
           end 
           

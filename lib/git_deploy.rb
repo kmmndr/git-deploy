@@ -108,15 +108,41 @@ class GitDeploy < Thor
   end
 
   desc "rake", "Run rake command on server"
-  method_option :task, :aliases => '-t', :required => true
+  method_option :task, :type => :array, :aliases => '-t', :required => true
   method_option :env, :aliases => '-e', :default => 'production'
   def rake(n = nil)
     task = options[:task]
     rails_env = options[:env]
+
     #load_rbenv(rails_env)
+    run_with_env [] do |cmd|
+      cmd << "cd #{deploy_to}"
+      cmd << "RAILS_ENV=#{rails_env} rake #{task.join(' ')}"
+    end
+  end
+
+  desc "config", "Setup config vars"
+  method_option :add, :aliases => '-a' 
+  method_option :del, :aliases => '-d' 
+  def config(n = nil)
+    add_param = options[:add]
+    del_param = options[:del]
+    remote_bin_dir = "#{deploy_to}/.git/bin"
+
+    # by default, list all params
+    config_opts = ""
+    if add_param
+      puts "Adding config vars: #{add_param}"
+      config_opts = "add #{add_param}"
+    end
+    if del_param
+      puts "Removing config vars: #{del_param}"
+      config_opts = "del #{del_param}"
+    end
+
     run [] do |cmd|
       cmd << "cd #{deploy_to}"
-      cmd << "RAILS_ENV=#{rails_env} rake #{task}"
+      cmd << "#{remote_bin_dir}/params.sh #{config_opts}"
     end
   end
 

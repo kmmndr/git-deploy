@@ -432,18 +432,25 @@ end
 adapter = uri.scheme
 adapter = "postgresql" if adapter == "postgres"
 
-database = (uri.path || "").split("/")[1]
-
 username = uri.user
 password = uri.password
 
 host = uri.host
 port = uri.port
 
+#database = (uri.path || "").split("/")[1]
+database = uri.path || ""
+if adapter.start_with?('sqlite')
+  database = database[1..-1] unless database == ""
+  host = nil
+else
+  database = database.split("/")[1]
+end
+
+
 params = CGI.parse(uri.query || "")
 
 %>
-
 <%= ENV["RAILS_ENV"] || ENV["RACK_ENV"] %>:
   <%= attribute "adapter",  adapter %>
   <%= attribute "database", database %>

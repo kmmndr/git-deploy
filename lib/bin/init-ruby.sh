@@ -20,7 +20,7 @@ if ! check_command rbenv; then
 fi
 
 # need better place
-export DATABASE_URL="postgres://$PROJECT_NAME:$PROJECT_NAME@localhost/$PROJECT_NAME"
+#export DATABASE_URL="postgres://$PROJECT_NAME:$PROJECT_NAME@localhost/$PROJECT_NAME"
 
 log "ruby version : `ruby -v`"
 ruby ${BIN_DIR}/compile-ruby.rb
