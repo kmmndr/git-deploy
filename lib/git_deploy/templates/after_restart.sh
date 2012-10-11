@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-echo "-----> DONE."
+echo "after restart"
+

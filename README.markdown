@@ -41,11 +41,19 @@ Setup steps
     
     This generates default deploy callback scripts in the "deploy/" directory. You must check them in version control. They are going to be executed on the server on each deploy.
 
-4.  Push the code.
+4.  Set configuration variables if needed (rails need a database)
+
+        $ git deploy config -r production -a DATABASE_URL="postgres://dbuser:dbpass@localhost/dbname"
+
+or 
+
+        $ git deploy config -r production -a DATABASE_URL="sqlite3://localhost/db/production.sqlite3"
+
+5.  Push the code.
 
         $ git push production master
 
-3.  Login to your server and manually perform necessary one-time administrative operations. This might include:
+6.  Login to your server and manually perform necessary one-time administrative operations. This might include:
     * set up the Apache/nginx virtual host for this application;
     * check your "config/database.yml" and create the production database.
 

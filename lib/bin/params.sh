@@ -26,6 +26,12 @@ function list_params() {
 }
 
 if [ $# -ne 0 ]; then
+  # create file if not present
+  if [ ! -f $ENV_FILE ]; then
+    echo "Creating params file ($ENV_FILE)"
+    touch $ENV_FILE
+  fi
+
   # get action requested
   action=$1
   case "$action" in
@@ -35,6 +41,7 @@ if [ $# -ne 0 ]; then
     value=`echo $param_str | cut -d '=' -f2`
     if [ "a$action" == "adel" ]; then
       echo "Removing config vars : $param"
+      del_param $param
     else
       echo "Adding config vars : $param=$value"
       add_param $param $value

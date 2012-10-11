@@ -1,3 +1,4 @@
 #!/bin/sh
-touch tmp/restart.txt
-echo "-----> restarting Passenger app"
+echo "restart"
+
+# touch tmp/restart.txt
