@@ -11,12 +11,11 @@ end
 
 build_dir = ENV['FULL_DIRNAME']
 
-if pack = LanguagePack.detect(build_dir, '/tmp/git-deploy/bundler') 
-#if pack = LanguagePack.detect(ARGV.first) 
+if pack = LanguagePack.detect(build_dir, '/tmp/git-deploy/bundler')
+#if pack = LanguagePack.detect(ARGV.first)
   puts pack.name
   pack.compile
 else
   puts "no"
   exit 1
-end   
-
+end

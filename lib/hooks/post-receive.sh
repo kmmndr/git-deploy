@@ -25,6 +25,8 @@ PROJECT_NAME=${PROJECT_NAME%.*}
 BIN_DIR="${FULL_DIRNAME}/.git/bin"
 export CURRENT_GIT_BRANCH FULL_DIRNAME PROJECT_NAME BIN_DIR
 
+USER=`id -nu`
+
 # loading functions
 . $BIN_DIR/functions.sh
 

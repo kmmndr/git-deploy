@@ -29,7 +29,7 @@ do
     echo "$refname is not master"
     continue
   fi
-  rm -rf $SCRATCH_DIR/$GIT_DIR_NAME 
+  rm -rf $SCRATCH_DIR/$GIT_DIR_NAME
   mkdir -p $SCRATCH_DIR/$GIT_DIR_NAME $CACHE_DIR/$GIT_DIR_NAME
   GIT_WORK_TREE=$SCRATCH_DIR/$GIT_DIR_NAME git checkout -f $newrev &> /dev/null
   $BIN_DIR/detect $SCRATCH_DIR/$GIT_DIR_NAME

@@ -38,6 +38,3 @@ exit_with_error() {
   log "An error has occurred, stopping\nInvoked command : $1"
   exit 1
 }
-
-USER=`id -nu`
-
