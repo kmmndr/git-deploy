@@ -1,0 +1,7 @@
+name: 'Ruby, Chruby and Bluepill profile'
+detect:
+  - ruby
+init:
+  - chruby
+server:
+  - passenger

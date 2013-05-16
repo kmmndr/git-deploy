@@ -2,15 +2,18 @@
 
 ENV_FILE=.env
 
+# add param to file
 function add_param() {
   param=$1
   value=$2
   list_params | grep "$param" > /dev/null
-  if [ $? -ne 0 ]; then
-    echo "$param=$value" >> $ENV_FILE
+  if [ $? -eq 0 ]; then
+    del_param $param
   fi
+  echo "$param=$value" >> $ENV_FILE
 }
 
+# remove param from file
 function del_param() {
   param=$1
   echo "$param" >> $ENV_FILE
@@ -18,6 +21,7 @@ function del_param() {
   mv .env.tmp .env
 }
 
+# list params from file
 function list_params() {
   while read line
   do
@@ -25,12 +29,19 @@ function list_params() {
   done < $ENV_FILE
 }
 
-if [ $# -ne 0 ]; then
-  # create file if not present
+# create file if not present
+function check_params_file() {
   if [ ! -f $ENV_FILE ]; then
-    echo "Creating params file ($ENV_FILE)"
+    echo "Creating new empty params file ($ENV_FILE)"
     touch $ENV_FILE
   fi
+}
+
+
+# ensure params file exists
+check_params_file
+
+if [ $# -ne 0 ]; then
 
   # get action requested
   action=$1

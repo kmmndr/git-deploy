@@ -1,4 +1,4 @@
-class GitDeploy
+module GitDeploy
   module SSHMethods
     private
     SHELLS = [{ name: 'bash', command: 'bash -i -l' }]
@@ -17,17 +17,23 @@ class GitDeploy
       run cmd, shell, &block
     end
 
-    def run(cmd = nil, shell = nil)
-      cmd = yield(cmd) if block_given?
-      cmd = cmd.join(' && ') if Array === cmd
-      puts "[#{options[:remote]}] $ " + cmd.gsub(' && ', " && \\\n  ")
+    def run_quietly(command = nil, shell = nil, opts = {})
+      run(command, shell, opts.merge(:silent => true))
+    end
+
+    def run(command = nil, shell = nil, opts = {})
+      cmds = command.is_a?(Array) ? command : [command]
+      cmds = yield(cmds) if block_given?
+      cmd = cmds.compact.join(' && ')
+
+      puts "[#{options[:remote]}] $ " + cmd.gsub(' && ', " && \\\n  ") unless opts[:silent]
 
       unless options.noop?
         #status, output = ssh_exec cmd do |ch, stream, data|
         status, output = ssh_exec cmd, shell do |ch, stream, data|
           case stream
-          when :stdout then $stdout.print data
-          when :stderr then $stderr.print data
+          when :stdout then $stdout.print data unless opts[:silent]
+          when :stderr then $stderr.print data unless opts[:silent]
           end
           ch.send_data(askpass) if data =~ /^sudo password: /
         end
@@ -65,8 +71,8 @@ class GitDeploy
 
             # Remember to exit or we'll hang!
             ch.send_data "exit\n"
-          end 
-          
+          end
+
 
           ch.on_data do |c, data|
             output << data
@@ -117,8 +123,14 @@ class GitDeploy
 
     def ssh_connection
       @ssh ||= begin
-        ssh = Net::SSH.start(host, remote_user, :port => remote_port)
-        at_exit { ssh.close }
+        begin
+          ssh = Net::SSH.start(host, remote_user, :port => remote_port)
+          at_exit { ssh.close }
+        rescue Net::SSH::AuthenticationFailed
+          puts "You need to have an ssh key for #{remote_user}@#{host}:#{remote_port}"
+          exit
+        end
+
         ssh
       end
     end

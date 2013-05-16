@@ -1,23 +1,45 @@
 #!/usr/bin/env bash
 #
 # Purpose: check if the application is deployable
-# Usage:  detect temporary_dir/ 
-
+# Usage:  detect temporary_dir/
 SRC_DIR=$1
 
-# handle ruby project having a gemfile
-if check_files $SRC_DIR Gemfile; then
-  log "Ruby/* project detected"
+DETECT_DIR=$BIN_DIR/detect
+#echo "$DETECT_DIR"
 
-  # loading selected ruby initializer
-  if [ -x $BIN_DIR/init/ruby ]; then
-    . $BIN_DIR/init/ruby
+detector=$DETECT_DIR/$DETECT
+
+not_found=1
+
+#env
+#echo "DETECT : $DETECT"
+#echo "YO"
+
+# OPTIMIZE : use original heroku build pack instead
+
+if [ -x $detector ]; then
+  . $detector $SRC_DIR
+  not_found=$?
+else
+  if [ -d $DETECT_DIR ]; then
+    for detector in $DETECT_DIR/*
+    do
+      echo "detector $detector found"
+      . $detector $SRC_DIR
+      not_found=$?
+      [ $not_found -ne 0 ] && break
+    done
+
+    env
   fi
-
-  #. $BIN_DIR/init/chruby.sh
-
-  log "ruby version : `ruby -v`"
-  #ruby ${BIN_DIR}/compile-ruby.rb
-
-  env
 fi
+
+if [ $not_found -ne 0 ]; then
+  log "No language detector detected"
+else
+  # detector found
+  echo "Detector found : $detector"
+  echo "(Probably) Deployed successfully"
+fi
+
+exit

@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = GitDeploy::VERSION
 
+  gem.add_dependency 'highline'
   gem.add_dependency 'thor'
   gem.add_dependency 'net-ssh'
   gem.add_dependency 'net-scp'

@@ -45,12 +45,14 @@ Setup steps
 
         $ git deploy config -r production -a DATABASE_URL="postgres://dbuser:dbpass@localhost/dbname"
 
-or 
+or
 
         $ git deploy config -r production -a DATABASE_URL="sqlite3://localhost/db/production.sqlite3"
 
 5.  Push the code.
 
+    By default, branch 'master' is deployed, if you want to use another branch, set GIT_DEPLOY_BRANCH environment variable.
+    
         $ git push production master
 
 6.  Login to your server and manually perform necessary one-time administrative operations. This might include:

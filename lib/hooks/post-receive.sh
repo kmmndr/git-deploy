@@ -24,14 +24,26 @@ PROJECT_NAME=$(basename $FULL_DIRNAME)
 PROJECT_NAME=${PROJECT_NAME%.*}
 BIN_DIR="${FULL_DIRNAME}/.git/bin"
 export CURRENT_GIT_BRANCH FULL_DIRNAME PROJECT_NAME BIN_DIR
+DEFAULT_DEPLOY_BRANCH='master'
 
 USER=`id -nu`
 
 # loading functions
 . $BIN_DIR/functions.sh
 
-# abort if the push hasn't been done in master branch
-if [ "$CURRENT_GIT_BRANCH" != "master" ]; then
+# loading environment variables
+if [ -f $FULL_DIRNAME/.env ]; then
+  log "loading environment variables"
+  while read line
+  do
+    eval "export $line"
+  done < $FULL_DIRNAME/.env
+fi
+
+# abort if the push hasn't been done in the right branch
+SELECTED_DEPLOY_BRANCH=${GIT_DEPLOY_BRANCH:-$DEFAULT_DEPLOY_BRANCH}
+log "Selected deploy branch [$SELECTED_DEPLOY_BRANCH]"
+if [ "$CURRENT_GIT_BRANCH" != "$SELECTED_DEPLOY_BRANCH" ]; then
   log "pushed into $CURRENT_GIT_BRANCH. Done."
   exit
 fi
@@ -50,13 +62,6 @@ run_quietly "GIT_WORK_TREE=$FULL_DIRNAME git checkout -f"
 #. $BIN_DIR/detect.sh $FULL_DIRNAME
 #. $BIN_DIR/compile $FULL_DIRNAME
 #. $BIN_DIR/detect.sh $FULL_DIRNAME
-if [ -f $FULL_DIRNAME/.env ]; then
-  echo "loading env file"
-  while read line  
-  do
-    eval "export $line"
-  done < $FULL_DIRNAME/.env
-fi
 . $BIN_DIR/detect.sh $FULL_DIRNAME
 
 log "DONE PREPARING :-)"

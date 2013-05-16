@@ -2,7 +2,7 @@ require 'uri'
 require 'cgi'
 require 'forwardable'
 
-class GitDeploy
+module GitDeploy
   module Configuration
     private
 
